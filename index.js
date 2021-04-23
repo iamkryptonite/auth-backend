@@ -35,8 +35,10 @@ passport.use(new FacebookStrategy({
       last_name : last_name,
       username : name
     };
-    console.log(profile._json,userData)
-    new userModel(userData).save();
+    userModel.findOne({facebook_id:id}).then((user)=>{
+        if(!user)
+            new userModel(userData).save();
+    })
     done(null, profile);
   }
 ));
