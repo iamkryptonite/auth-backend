@@ -7,39 +7,50 @@ const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 
 const keys = require('./keys')
+console.log(keys)
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+passport.deserializeUser(function(obj, done) {
+    done(null, obj);
+});
 
 passport.use(new FacebookStrategy({
     clientID: keys.facebook.clientID,
     clientSecret: keys.facebook.clientSecret,
-    callbackURL: "http://localhost:3000/auth/facebook/callback"
+    callbackURL: "/auth/facebook/callback",
   },
   function(accessToken, refreshToken, profile, done) {
-    User.findOrCreate(... function(err, user) {
-      if (err) { return done(err); }
-      done(null, user);
-    });
+    done(null, profile);
   }
 ));
 
+
+//---------------Routes----------------------
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+    res.send('Hello World!')
 })
 
-passport.use(new LocalStrategy(
-    function(username, password, done) {
-      User.findOne({ username: username }, function(err, user) {
-        if (err) { return done(err); }
-        if (!user) {
-          return done(null, false, { message: 'Incorrect username.' });
-        }
-        if (!user.validPassword(password)) {
-          return done(null, false, { message: 'Incorrect password.' });
-        }
-        return done(null, user);
-      });
-    }
-));
+app.get('/auth/facebook', passport.authenticate('facebook'))
 
+app.get("/auth/facebook/callback",passport.authenticate("facebook", {
+      successRedirect: "/",
+      failureRedirect: "/fail"
+    })
+);
+
+app.get("/fail", (req, res) => {
+    res.send("Failed attempt");
+});
+
+
+
+
+
+
+
+
+//---------------------------------------------------------------------
 app.listen(port, () => {
   console.log(`Authentication app listening at http://localhost:${port}`)
 })
