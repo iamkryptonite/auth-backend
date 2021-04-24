@@ -16,7 +16,7 @@ app.use(cookieSession({
 }))
 app.use(passport.initialize());
 app.use(passport.session());
-mongoose.connect(keys.mongodb.uri,{useNewUrlParser: true, useUnifiedTopology: true},()=>{
+mongoose.connect(process.env.MONGODB_URI || keys.mongodb.uri,{useNewUrlParser: true, useUnifiedTopology: true},()=>{
     console.log('connected')
 })
 
